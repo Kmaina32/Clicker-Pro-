@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Save, Trash2, Download, Upload } from 'lucide-react';
 import { ClickerConfig } from '../types';
@@ -10,25 +10,53 @@ interface ProfileManagerProps {
 }
 
 export const ProfileManager: React.FC<ProfileManagerProps> = ({ config, setConfig, theme }) => {
-  const [profiles, setProfiles] = useState<ClickerConfig[]>(() => {
-    const saved = localStorage.getItem('clicker_profiles');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [profiles, setProfiles] = useState<ClickerConfig[]>([]);
   const [newProfileName, setNewProfileName] = useState('');
 
-  const saveProfile = () => {
-    if (!newProfileName.trim()) return;
-    const newProfile = { ...config, id: Date.now().toString(), name: newProfileName };
-    const updated = [...profiles, newProfile];
-    setProfiles(updated);
-    localStorage.setItem('clicker_profiles', JSON.stringify(updated));
-    setNewProfileName('');
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
+
+  const fetchProfiles = async () => {
+    try {
+      const res = await fetch('/api/profiles');
+      if (res.ok) {
+        const data = await res.json();
+        setProfiles(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch profiles:', err);
+    }
   };
 
-  const deleteProfile = (id: string) => {
-    const updated = profiles.filter(p => p.id !== id);
-    setProfiles(updated);
-    localStorage.setItem('clicker_profiles', JSON.stringify(updated));
+  const saveProfile = async () => {
+    if (!newProfileName.trim()) return;
+    const newProfile = { ...config, id: Date.now().toString(), name: newProfileName };
+    
+    try {
+      const res = await fetch('/api/profiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProfile),
+      });
+      if (res.ok) {
+        setProfiles(prev => [...prev, newProfile]);
+        setNewProfileName('');
+      }
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+    }
+  };
+
+  const deleteProfile = async (id: string) => {
+    try {
+      const res = await fetch(`/api/profiles/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setProfiles(prev => prev.filter(p => p.id !== id));
+      }
+    } catch (err) {
+      console.error('Failed to delete profile:', err);
+    }
   };
 
   const loadProfile = (profile: ClickerConfig) => {
@@ -49,12 +77,19 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({ config, setConfi
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const imported = JSON.parse(event.target?.result as string);
-        const updated = [...profiles, ...imported];
-        setProfiles(updated);
-        localStorage.setItem('clicker_profiles', JSON.stringify(updated));
+        if (Array.isArray(imported)) {
+          for (const profile of imported) {
+            await fetch('/api/profiles', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(profile),
+            });
+          }
+          fetchProfiles();
+        }
       } catch (err) {
         console.error('Invalid JSON file');
       }

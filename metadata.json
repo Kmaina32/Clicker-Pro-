@@ -1,5 +1,5 @@
 {
   "name": "Clicker Pro",
-  "description": "A web-based auto-clicker simulator and script generator for local machine automation.",
+  "description": "A full-stack auto-clicker simulator and script generator with persistent profile and session management.",
   "requestFramePermissions": []
 }

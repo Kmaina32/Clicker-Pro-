@@ -14,6 +14,22 @@ export function useClicker(config: ClickerConfig) {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    fetchLogs();
+  }, []);
+
+  const fetchLogs = async () => {
+    try {
+      const res = await fetch('/api/logs');
+      if (res.ok) {
+        const data = await res.json();
+        setSessionLogs(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch logs:', err);
+    }
+  };
+
   const addTerminalLog = useCallback((message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info') => {
     const id = Math.random().toString(36).substr(2, 9);
     setTerminalLogs(prev => [{ id, message, type }, ...prev].slice(0, 50));
@@ -35,7 +51,7 @@ export function useClicker(config: ClickerConfig) {
     }, 1000);
   }, [config.rippleEnabled]);
 
-  const stopSimulation = useCallback(() => {
+  const stopSimulation = useCallback(async () => {
     if (isRunning && startTime) {
       const duration = (Date.now() - startTime) / 1000;
       const newLog: SessionLog = {
@@ -45,7 +61,20 @@ export function useClicker(config: ClickerConfig) {
         duration: Math.round(duration),
         configName: config.name || 'UNNAMED_PROCESS',
       };
-      setSessionLogs(prev => [newLog, ...prev].slice(0, 10));
+      
+      try {
+        const res = await fetch('/api/logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newLog),
+        });
+        if (res.ok) {
+          setSessionLogs(prev => [newLog, ...prev].slice(0, 50));
+        }
+      } catch (err) {
+        console.error('Failed to save log:', err);
+      }
+      
       addTerminalLog(`Process terminated. Total clicks: ${clicksCount}`, 'warning');
     }
     setIsRunning(false);
