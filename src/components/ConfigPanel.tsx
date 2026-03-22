@@ -9,11 +9,13 @@ interface ConfigPanelProps {
   detectPosition: () => void;
   isDetecting: boolean;
   isSessionActive: boolean;
+  stopSession: () => void;
+  clickCount: number;
   theme: any;
 }
 
 export const ConfigPanel: React.FC<ConfigPanelProps> = ({
-  config, setConfig, detectPosition, isDetecting, isSessionActive, theme
+  config, setConfig, detectPosition, isDetecting, isSessionActive, stopSession, clickCount, theme
 }) => {
   const [recordingKey, setRecordingKey] = useState<'start' | 'stop' | 'reset' | null>(null);
 
@@ -226,6 +228,36 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
           >
             Start Session
           </motion.button>
+        )}
+
+        {isSessionActive && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={`w-full mt-4 p-6 border-2 border-emerald-500/50 ${theme.card} ${theme.radius || 'rounded-none'} flex flex-col items-center gap-4`}
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col items-center">
+                <span className={`text-[10px] font-bold ${theme.muted} uppercase tracking-widest`}>Clicks Performed</span>
+                <span className={`text-4xl font-black ${theme.text} ${theme.mono}`}>{clickCount}</span>
+              </div>
+              <div className={`w-12 h-12 rounded-full border-2 border-emerald-500/20 flex items-center justify-center`}>
+                <motion.div 
+                  key={clickCount}
+                  initial={{ scale: 1.5, opacity: 1 }}
+                  animate={{ scale: 1, opacity: 0.2 }}
+                  className={`w-8 h-8 rounded-full ${theme.accentBg}`}
+                />
+              </div>
+            </div>
+            
+            <button 
+              onClick={stopSession}
+              className={`w-full py-3 bg-rose-500/10 border border-rose-500/50 text-rose-500 text-[10px] font-bold uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all`}
+            >
+              Stop Session
+            </button>
+          </motion.div>
         )}
       </div>
 

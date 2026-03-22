@@ -27,16 +27,75 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'config' | 'scripts' | 'theme' | 'help'>('config');
   const [isDetecting, setIsDetecting] = useState(false);
   const [isSessionActive, setIsSessionActive] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
   const [profiles, setProfiles] = useState<ClickerConfig[]>([]);
 
   // --- Session Logic ---
   const startSession = useCallback(() => {
+    setClickCount(0);
     setIsSessionActive(true);
   }, []);
 
   const stopSession = useCallback(() => {
     setIsSessionActive(false);
   }, []);
+
+  // Simulation Loop
+  useEffect(() => {
+    if (!isSessionActive) return;
+
+    let timeoutId: NodeJS.Timeout;
+    const startTime = Date.now();
+
+    const performClick = () => {
+      if (!isSessionActive) return;
+
+      // Check Duration Limit
+      if (config.useDuration) {
+        const elapsed = (Date.now() - startTime) / 1000;
+        if (elapsed >= config.duration) {
+          stopSession();
+          return;
+        }
+      }
+
+      let reachedLimit = false;
+      // Check Click Limit
+      setClickCount(prev => {
+        const next = prev + 1;
+        if (config.useLimit && next >= config.repeatCount) {
+          reachedLimit = true;
+        }
+        return next;
+      });
+
+      if (reachedLimit) {
+        stopSession();
+        return;
+      }
+
+      // Schedule next click
+      let nextInterval = config.interval;
+      if (config.randomize) {
+        nextInterval = Math.floor(Math.random() * (config.maxInterval - config.minInterval + 1)) + config.minInterval;
+      }
+
+      let ms = 0;
+      switch (config.unit) {
+        case 'ms': ms = nextInterval; break;
+        case 's': ms = nextInterval * 1000; break;
+        case 'm': ms = nextInterval * 60000; break;
+        case 'cpm': ms = 60000 / Math.max(1, nextInterval); break;
+      }
+
+      timeoutId = setTimeout(performClick, ms);
+    };
+
+    // Initial delay or immediate start
+    timeoutId = setTimeout(performClick, config.startDelay * 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [isSessionActive, config, stopSession]);
 
   // Expose startSession to window for ConfigPanel
   useEffect(() => {
@@ -120,50 +179,6 @@ export default function App() {
       {/* Main Container */}
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
         
-        {/* Session Overlay */}
-        <AnimatePresence>
-          {isSessionActive && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-8"
-            >
-              <div className="relative">
-                <div className={`absolute inset-0 blur-3xl opacity-20 ${theme.accentBg}`} />
-                <div className={`relative p-12 border-2 ${theme.border} ${theme.card} ${theme.radius || 'rounded-none'} text-center space-y-6 shadow-2xl`}>
-                  <div className="flex items-center justify-center gap-4">
-                    <div className={`w-3 h-3 rounded-full ${theme.accentBg} animate-ping`} />
-                    <h3 className={`text-2xl font-black uppercase tracking-[0.4em] ${theme.text}`}>Session Active</h3>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-8 py-4">
-                    <div className="text-center">
-                      <span className={`block text-[10px] font-bold ${theme.muted} uppercase tracking-widest mb-1`}>Target</span>
-                      <span className={`text-sm font-mono ${theme.text}`}>X:{config.x} Y:{config.y}</span>
-                    </div>
-                    <div className="text-center">
-                      <span className={`block text-[10px] font-bold ${theme.muted} uppercase tracking-widest mb-1`}>Interval</span>
-                      <span className={`text-sm font-mono ${theme.text}`}>{config.interval}{config.unit}</span>
-                    </div>
-                  </div>
-
-                  <p className={`text-xs ${theme.muted} italic max-w-xs mx-auto`}>
-                    Automation is running in architect mode. This is a simulation for configuration verification.
-                  </p>
-
-                  <button 
-                    onClick={stopSession}
-                    className={`w-full py-4 border-2 border-rose-500/50 text-rose-500 text-xs font-black uppercase tracking-[0.3em] hover:bg-rose-500/10 transition-all`}
-                  >
-                    Terminate Session
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
         {/* Navigation Rail */}
         <Navigation 
           activeTab={activeTab} 
@@ -192,6 +207,8 @@ export default function App() {
                       detectPosition={detectPosition}
                       isDetecting={isDetecting}
                       isSessionActive={isSessionActive}
+                      stopSession={stopSession}
+                      clickCount={clickCount}
                       theme={theme}
                     />
                   </div>
