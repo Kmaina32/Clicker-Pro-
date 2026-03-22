@@ -183,6 +183,7 @@ export function useClicker(config: ClickerConfig) {
     terminalLogs,
     startSimulation,
     stopSimulation,
-    setClicksCount
+    setClicksCount,
+    addTerminalLog
   };
 }

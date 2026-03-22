@@ -1,5 +1,5 @@
 {
-  "name": "Clicker Pro",
-  "description": "A full-stack auto-clicker simulator and script generator with persistent profile and session management.",
+  "name": "Clicker Pro: Advanced Automation Suite",
+  "description": "A professional-grade full-stack automation platform for simulating mouse interactions, generating Python scripts, and scheduling complex tasks. Features persistent profiles, real-time performance monitoring, and a customizable utility-first interface.",
   "requestFramePermissions": []
 }

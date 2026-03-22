@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Settings2, Code2, Zap, ChevronRight, History, Palette } from 'lucide-react';
+import { Settings2, Code2, Zap, ChevronRight, History, Palette, Calendar, HelpCircle } from 'lucide-react';
 
 interface NavigationProps {
   activeTab: string;
@@ -11,10 +11,12 @@ interface NavigationProps {
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab, theme }) => {
   const tabs = [
     { id: 'config', label: 'Configuration', icon: Settings2 },
+    { id: 'schedule', label: 'Schedule', icon: Calendar },
     { id: 'scripts', label: 'Export Scripts', icon: Code2 },
     { id: 'test', label: 'CPS Tester', icon: Zap },
     { id: 'history', label: 'Session Logs', icon: History },
     { id: 'theme', label: 'Skins', icon: Palette },
+    { id: 'help', label: 'SOP / Help', icon: HelpCircle },
   ];
 
   return (

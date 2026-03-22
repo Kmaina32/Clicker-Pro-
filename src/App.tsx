@@ -27,14 +27,17 @@ import { ProfileManager } from './components/ProfileManager';
 import { PatternRecorder } from './components/PatternRecorder';
 import { MiniOverlay } from './components/MiniOverlay';
 import { SystemTerminal } from './components/SystemTerminal';
+import { TaskScheduler } from './components/TaskScheduler';
+import { Help } from './components/Help';
 
 export default function App() {
   // --- State ---
   const [theme, setTheme] = useState(THEMES.MODERN);
   const [config, setConfig] = useState<ClickerConfig>(DEFAULT_CONFIG);
-  const [activeTab, setActiveTab] = useState<'config' | 'scripts' | 'test' | 'history' | 'theme'>('config');
+  const [activeTab, setActiveTab] = useState<'config' | 'schedule' | 'scripts' | 'test' | 'history' | 'theme' | 'help'>('config');
   const [showOverlay, setShowOverlay] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [profiles, setProfiles] = useState<ClickerConfig[]>([]);
 
   // --- Simulation Hook ---
   const {
@@ -47,8 +50,69 @@ export default function App() {
     terminalLogs,
     startSimulation,
     stopSimulation,
-    setClicksCount
+    setClicksCount,
+    addTerminalLog
   } = useClicker(config);
+
+  // --- Fetch Profiles for Scheduler ---
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      try {
+        const res = await fetch('/api/profiles');
+        if (res.ok) {
+          const data = await res.json();
+          setProfiles(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch profiles:', err);
+      }
+    };
+    fetchProfiles();
+  }, [activeTab]);
+
+  // --- Background Scheduler Logic ---
+  useEffect(() => {
+    const checkTasks = async () => {
+      if (isRunning || isCountingDown) return;
+
+      try {
+        const res = await fetch('/api/tasks');
+        if (!res.ok) return;
+        const tasks = await res.json();
+        
+        const now = new Date();
+        const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        const currentDay = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][now.getDay()];
+
+        for (const task of tasks) {
+          if (task.isActive && task.days.includes(currentDay) && task.startTime === currentTime) {
+            // Check if it already ran in the last minute to avoid double triggering
+            const lastRun = task.lastRun || 0;
+            if (Date.now() - lastRun > 61000) {
+              addTerminalLog(`Scheduled task triggered: ${task.name}`, 'info');
+              setConfig(task.config);
+              
+              // Update last run time on server
+              await fetch(`/api/tasks/${task.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...task, lastRun: Date.now() }),
+              });
+
+              // Start simulation after a small delay to ensure config is set
+              setTimeout(() => startSimulation(), 500);
+              break; 
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Scheduler error:', err);
+      }
+    };
+
+    const interval = setInterval(checkTasks, 30000); // Check every 30 seconds
+    return () => clearInterval(interval);
+  }, [isRunning, isCountingDown, startSimulation, addTerminalLog]);
 
   // --- Auto Detect Position ---
   const detectPosition = useCallback(() => {
@@ -168,6 +232,10 @@ export default function App() {
               </motion.div>
             )}
 
+            {activeTab === 'schedule' && (
+              <TaskScheduler theme={theme} profiles={profiles} />
+            )}
+
             {activeTab === 'scripts' && (
               <ScriptExporter config={config} theme={theme} />
             )}
@@ -182,6 +250,10 @@ export default function App() {
 
             {activeTab === 'theme' && (
               <ThemeSwitcher currentTheme={theme} setTheme={setTheme} theme={theme} />
+            )}
+
+            {activeTab === 'help' && (
+              <Help theme={theme} />
             )}
           </AnimatePresence>
         </div>

@@ -31,3 +31,13 @@ export interface SessionLog {
   duration: number;
   configName: string;
 }
+
+export interface ScheduledTask {
+  id: string;
+  name: string;
+  config: ClickerConfig;
+  startTime: string; // HH:mm format
+  days: string[]; // ['Mon', 'Tue', ...]
+  isActive: boolean;
+  lastRun?: number;
+}

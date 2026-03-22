@@ -13,13 +13,15 @@ async function ensureDataFile() {
   try {
     await fs.access(DATA_FILE);
   } catch {
-    await fs.writeFile(DATA_FILE, JSON.stringify({ profiles: [], logs: [] }));
+    await fs.writeFile(DATA_FILE, JSON.stringify({ profiles: [], logs: [], tasks: [] }));
   }
 }
 
 async function readData() {
   const data = await fs.readFile(DATA_FILE, 'utf-8');
-  return JSON.parse(data);
+  const parsed = JSON.parse(data);
+  if (!parsed.tasks) parsed.tasks = [];
+  return parsed;
 }
 
 async function writeData(data: any) {
@@ -71,6 +73,36 @@ async function startServer() {
     if (data.logs.length > 50) data.logs.pop(); // Keep last 50
     await writeData(data);
     res.status(201).json(newLog);
+  });
+
+  // Scheduled Tasks
+  app.get('/api/tasks', async (req, res) => {
+    const data = await readData();
+    res.json(data.tasks);
+  });
+
+  app.post('/api/tasks', async (req, res) => {
+    const data = await readData();
+    const newTask = req.body;
+    if (!newTask.id) newTask.id = Date.now().toString();
+    data.tasks.push(newTask);
+    await writeData(data);
+    res.status(201).json(newTask);
+  });
+
+  app.put('/api/tasks/:id', async (req, res) => {
+    const data = await readData();
+    const updatedTask = req.body;
+    data.tasks = data.tasks.map((t: any) => t.id === req.params.id ? updatedTask : t);
+    await writeData(data);
+    res.json(updatedTask);
+  });
+
+  app.delete('/api/tasks/:id', async (req, res) => {
+    const data = await readData();
+    data.tasks = data.tasks.filter((t: any) => t.id !== req.params.id);
+    await writeData(data);
+    res.status(204).end();
   });
 
   // Health check
