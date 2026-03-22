@@ -23,14 +23,14 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id as any)}
-          className={`flex items-center gap-3 p-4 rounded-none transition-all duration-200 text-left group border
+          className={`flex items-center gap-3 p-4 ${theme.radius || 'rounded-none'} transition-all duration-200 text-left group border
             ${activeTab === tab.id 
-              ? `${theme.card} ${theme.border} ${theme.accent} border-current` 
-              : `${theme.muted} border-transparent hover:text-white hover:border-white/10`}
+              ? `${theme.card} ${theme.border} ${theme.accent} shadow-sm` 
+              : `${theme.muted} border-transparent hover:bg-white/50 hover:border-slate-200`}
           `}
         >
           <tab.icon className="w-5 h-5" />
-          <span className="text-xs font-bold uppercase tracking-wider">{tab.label}</span>
+          <span className="text-sm font-medium">{tab.label}</span>
           {activeTab === tab.id && (
             <motion.div layoutId="active-indicator" className="ml-auto">
               <ChevronRight className="w-4 h-4" />
@@ -40,16 +40,16 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
       ))}
 
       {/* Hotkey Info */}
-      <div className={`mt-auto p-4 rounded-none border ${theme.border} bg-white/5 hidden lg:block`}>
-        <span className={`text-[10px] font-bold ${theme.muted} uppercase block mb-2`}>Hotkeys</span>
+      <div className={`mt-auto p-4 ${theme.radius || 'rounded-none'} border ${theme.border} ${theme.card} hidden lg:block ${theme.glow}`}>
+        <span className={`text-xs font-semibold ${theme.muted} uppercase tracking-wider block mb-3`}>Hotkeys</span>
         <div className="space-y-2">
-          <div className="flex justify-between text-[10px]">
+          <div className="flex justify-between text-xs">
             <span className={theme.muted}>Start/Stop</span>
-            <span className={theme.accent}>^⌥P</span>
+            <kbd className={`px-1.5 py-0.5 rounded border ${theme.border} bg-slate-50 font-sans text-[10px]`}>Ctrl+Alt+P</kbd>
           </div>
-          <div className="flex justify-between text-[10px]">
+          <div className="flex justify-between text-xs">
             <span className={theme.muted}>Reset</span>
-            <span className={theme.accent}>^⌥R</span>
+            <kbd className={`px-1.5 py-0.5 rounded border ${theme.border} bg-slate-50 font-sans text-[10px]`}>Ctrl+Alt+R</kbd>
           </div>
         </div>
       </div>

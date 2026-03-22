@@ -19,30 +19,30 @@ export const MiniOverlay: React.FC<MiniOverlayProps> = ({
 }) => {
   return (
     <motion.div
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      className={`fixed bottom-8 right-8 ${theme.card} border ${theme.border} p-4 flex items-center gap-6 z-50 shadow-2xl`}
+      initial={{ scale: 0.8, opacity: 0, y: 20 }}
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      className={`fixed bottom-8 right-8 ${theme.card} border ${theme.border} ${theme.radius || 'rounded-none'} p-4 flex items-center gap-6 z-50 shadow-2xl ${theme.glow}`}
     >
       <div className="flex flex-col gap-1">
-        <span className={`text-[8px] ${theme.muted} uppercase tracking-widest`}>SIM_STATUS</span>
+        <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-widest`}>Status</span>
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${isRunning ? 'bg-[#00FF41] animate-pulse' : 'bg-red-500'}`} />
-          <span className="text-xs font-bold uppercase">{isRunning ? 'ACTIVE' : 'IDLE'}</span>
+          <div className={`w-2.5 h-2.5 rounded-full ${isRunning ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+          <span className={`text-xs font-bold uppercase ${theme.text}`}>{isRunning ? 'Active' : 'Idle'}</span>
         </div>
       </div>
 
-      <div className="h-8 w-[1px] bg-white/10" />
+      <div className={`h-10 w-[1px] ${theme.border}`} />
 
       <div className="flex flex-col gap-1 min-w-[60px]">
-        <span className={`text-[8px] ${theme.muted} uppercase tracking-widest`}>CLICKS</span>
-        <span className="text-xs font-bold">{clicksCount.toLocaleString()}</span>
+        <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-widest`}>Clicks</span>
+        <span className={`text-xs font-bold ${theme.text}`}>{clicksCount.toLocaleString()}</span>
       </div>
 
       <div className="flex gap-2">
         <button
           onClick={() => isRunning || isCountingDown ? stopSimulation() : startSimulation()}
-          className={`p-3 border ${theme.border} transition-all
-            ${isRunning || isCountingDown ? 'text-red-500 bg-red-500/10' : theme.accent + ' bg-white/5'}
+          className={`p-3 border ${theme.border} ${theme.radius || 'rounded-none'} transition-all shadow-sm
+            ${isRunning || isCountingDown ? 'text-rose-500 bg-rose-500/10' : theme.accent}
           `}
         >
           {isCountingDown ? (
@@ -53,7 +53,7 @@ export const MiniOverlay: React.FC<MiniOverlayProps> = ({
         </button>
         <button
           onClick={toggleOverlay}
-          className={`p-3 border ${theme.border} ${theme.muted} hover:text-white bg-white/5`}
+          className={`p-3 border ${theme.border} ${theme.radius || 'rounded-none'} ${theme.muted} hover:text-indigo-600 transition-colors shadow-sm`}
         >
           <Settings className="w-4 h-4" />
         </button>

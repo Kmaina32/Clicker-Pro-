@@ -12,9 +12,13 @@ export const ScriptExporter: React.FC<ScriptExporterProps> = ({ config, theme })
   const [copied, setCopied] = useState(false);
 
   const generateScript = () => {
+    const jitterCode = config.useCoordinates ? `
+        jx = random.uniform(-${config.jitterX/2}, ${config.jitterX/2})
+        jy = random.uniform(-${config.jitterY/2}, ${config.jitterY/2})` : '';
+
     const clickCall = config.clickType === 'double' 
-      ? `pyautogui.doubleClick(${config.useCoordinates ? `${config.x}, ${config.y}` : ''})`
-      : `pyautogui.click(${config.useCoordinates ? `${config.x}, ${config.y}` : ''}, button='${config.clickType}')`;
+      ? `pyautogui.doubleClick(${config.useCoordinates ? `${config.x} + jx, ${config.y} + jy` : ''})`
+      : `pyautogui.click(${config.useCoordinates ? `${config.x} + jx, ${config.y} + jy` : ''}, button='${config.clickType}')`;
 
     const baseInterval = config.unit === 'ms' ? config.interval / 1000 : 
                         config.unit === 's' ? config.interval : 
@@ -59,6 +63,7 @@ ${durationCheck}
 
 try:
     ${config.useDuration ? 'while check_duration():' : loopType}
+        ${jitterCode}
         ${clickCall}
         ${sleepCall}
 except KeyboardInterrupt:
@@ -90,34 +95,35 @@ except KeyboardInterrupt:
       className="space-y-6"
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold uppercase italic tracking-tight">Script Exporter</h2>
-        <div className="flex gap-2">
+        <h2 className={`text-2xl font-bold tracking-tight ${theme.text}`}>Script Exporter</h2>
+        <div className="flex gap-3">
           <button 
             onClick={downloadScript}
-            className={`p-2 border ${theme.border} ${theme.muted} hover:text-white transition-colors`}
+            className={`p-2.5 border ${theme.border} ${theme.radius || 'rounded-none'} ${theme.muted} hover:text-indigo-600 transition-colors`}
+            title="Download Script"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-5 h-5" />
           </button>
           <button 
             onClick={copyToClipboard}
-            className={`flex items-center gap-2 px-4 py-2 border ${theme.border} ${theme.accent} text-[10px] font-bold uppercase hover:bg-white/5 transition-all`}
+            className={`flex items-center gap-2 px-6 py-2.5 border ${theme.border} ${theme.radius || 'rounded-none'} ${theme.accent} text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-sm`}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'COPIED' : 'COPY_TO_CLIPBOARD'}
+            {copied ? 'Copied' : 'Copy Script'}
           </button>
         </div>
       </div>
 
-      <div className={`relative ${theme.bg} border ${theme.border} p-6 overflow-x-auto`}>
-        <pre className={`text-[11px] leading-relaxed ${theme.muted} ${theme.mono}`}>
+      <div className={`relative ${theme.bg} border ${theme.border} ${theme.radius || 'rounded-none'} p-6 overflow-x-auto ${theme.card} ${theme.glow}`}>
+        <pre className={`text-xs leading-relaxed ${theme.muted} ${theme.font || 'font-mono'}`}>
           {generateScript()}
         </pre>
       </div>
 
-      <div className={`p-4 border-l-2 border-[#00FF41]/30 bg-white/5 text-[10px] ${theme.muted} leading-relaxed`}>
-        <span className="text-white font-bold block mb-1">DEPLOYMENT_NOTICE:</span>
-        Requires Python 3.x and the `pyautogui` library. Install via: <br />
-        <code className="text-[#00FF41] mt-1 block">pip install pyautogui</code>
+      <div className={`p-5 border-l-4 border-indigo-500/30 ${theme.card} ${theme.radius || 'rounded-none'} text-xs ${theme.muted} leading-relaxed`}>
+        <span className={`${theme.text} font-bold block mb-2 uppercase tracking-widest text-[10px]`}>Deployment Notice</span>
+        Requires Python 3.x and the <code className="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-600">pyautogui</code> library. Install via: <br />
+        <code className="text-indigo-500 mt-2 block font-bold">pip install pyautogui</code>
       </div>
     </motion.div>
   );

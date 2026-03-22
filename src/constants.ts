@@ -9,6 +9,8 @@ export const THEMES = {
     text: 'text-[#E0E0E0]',
     muted: 'text-[#555555]',
     glow: 'shadow-[0_0_15px_rgba(0,255,65,0.1)]',
+    radius: 'rounded-none',
+    font: 'font-mono',
   },
   CYBERPUNK: {
     name: 'NEON_DISTRICT',
@@ -20,6 +22,8 @@ export const THEMES = {
     text: 'text-[#E0E0E0]',
     muted: 'text-[#8A2BE2]',
     glow: 'shadow-[0_0_15px_rgba(255,0,255,0.1)]',
+    radius: 'rounded-none',
+    font: 'font-mono',
   },
   TERMINAL: {
     name: 'CLASSIC_SHELL',
@@ -31,6 +35,21 @@ export const THEMES = {
     text: 'text-[#D4D4D4]',
     muted: 'text-[#808080]',
     glow: 'shadow-none',
+    radius: 'rounded-none',
+    font: 'font-mono',
+  },
+  MODERN: {
+    name: 'Modern Utility',
+    bg: 'bg-slate-50',
+    card: 'bg-white',
+    accent: 'text-indigo-600',
+    accentBg: 'bg-indigo-600',
+    border: 'border-slate-200',
+    text: 'text-slate-900',
+    muted: 'text-slate-500',
+    glow: 'shadow-sm',
+    radius: 'rounded-xl',
+    font: 'font-sans',
   }
 };
 

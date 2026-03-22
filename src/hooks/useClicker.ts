@@ -9,9 +9,15 @@ export function useClicker(config: ClickerConfig) {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [sessionLogs, setSessionLogs] = useState<SessionLog[]>([]);
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [terminalLogs, setTerminalLogs] = useState<{ id: string; message: string; type: 'info' | 'success' | 'error' | 'warning' }[]>([]);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
+
+  const addTerminalLog = useCallback((message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info') => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setTerminalLogs(prev => [{ id, message, type }, ...prev].slice(0, 50));
+  }, []);
 
   const playClickSound = useCallback(() => {
     if (!config.soundEnabled) return;
@@ -40,24 +46,27 @@ export function useClicker(config: ClickerConfig) {
         configName: config.name || 'UNNAMED_PROCESS',
       };
       setSessionLogs(prev => [newLog, ...prev].slice(0, 10));
+      addTerminalLog(`Process terminated. Total clicks: ${clicksCount}`, 'warning');
     }
     setIsRunning(false);
     setIsCountingDown(false);
     setStartTime(null);
     if (timerRef.current) clearTimeout(timerRef.current);
     if (countdownRef.current) clearTimeout(countdownRef.current);
-  }, [isRunning, startTime, clicksCount, config.name]);
+  }, [isRunning, startTime, clicksCount, config.name, addTerminalLog]);
 
   const startSimulation = useCallback(() => {
     setClicksCount(0);
     if (config.startDelay > 0) {
       setIsCountingDown(true);
       setCountdown(config.startDelay);
+      addTerminalLog(`Initiating countdown: ${config.startDelay}s`, 'info');
     } else {
       setIsRunning(true);
       setStartTime(Date.now());
+      addTerminalLog('Simulation started.', 'success');
     }
-  }, [config.startDelay]);
+  }, [config.startDelay, addTerminalLog]);
 
   useEffect(() => {
     if (isCountingDown) {
@@ -67,12 +76,13 @@ export function useClicker(config: ClickerConfig) {
         setIsCountingDown(false);
         setIsRunning(true);
         setStartTime(Date.now());
+        addTerminalLog('Simulation started.', 'success');
       }
     }
     return () => {
       if (countdownRef.current) clearTimeout(countdownRef.current);
     };
-  }, [isCountingDown, countdown]);
+  }, [isCountingDown, countdown, addTerminalLog]);
 
   useEffect(() => {
     if (isRunning) {
@@ -92,6 +102,7 @@ export function useClicker(config: ClickerConfig) {
         if (config.useDuration && startTime) {
           const elapsed = (Date.now() - startTime) / 1000;
           if (elapsed >= config.duration) {
+            addTerminalLog(`Duration limit reached: ${config.duration}s`, 'info');
             stopSimulation();
             return;
           }
@@ -99,6 +110,7 @@ export function useClicker(config: ClickerConfig) {
 
         setClicksCount(prev => {
           if (config.useLimit && prev >= config.repeatCount) {
+            addTerminalLog(`Click limit reached: ${config.repeatCount}`, 'info');
             stopSimulation();
             return prev;
           }
@@ -111,8 +123,6 @@ export function useClicker(config: ClickerConfig) {
             const jY = (Math.random() - 0.5) * config.jitterY;
             addRipple(config.x + jX, config.y + jY);
           } else {
-            // If mouse pos, we don't know where it is exactly in the web view easily, 
-            // but we can ripple at center for feedback
             addRipple(window.innerWidth / 2, window.innerHeight / 2);
           }
 
@@ -132,7 +142,7 @@ export function useClicker(config: ClickerConfig) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isRunning, config, startTime, playClickSound, addRipple, stopSimulation]);
+  }, [isRunning, config, startTime, playClickSound, addRipple, stopSimulation, addTerminalLog]);
 
   return {
     isRunning,
@@ -141,6 +151,7 @@ export function useClicker(config: ClickerConfig) {
     clicksCount,
     sessionLogs,
     ripples,
+    terminalLogs,
     startSimulation,
     stopSimulation,
     setClicksCount

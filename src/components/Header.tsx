@@ -10,22 +10,17 @@ export const Header: React.FC<HeaderProps> = ({ theme }) => {
     <motion.div 
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-12 text-center relative"
+      className="mb-8 text-left max-w-6xl w-full"
     >
-      <div className="flex flex-col items-center justify-center gap-1">
-        <div className="text-[10px] tracking-[0.5em] opacity-30 mb-2">SYSTEM_OVERRIDE_INIT</div>
-        <div className="flex items-baseline gap-1">
-          <h1 className="text-5xl font-black tracking-tighter uppercase italic flex items-center">
-            <span className={theme.accent}>C</span>LICKER
-            <span className="opacity-20">_</span>
-            <span className={theme.accent}>P</span>RO
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className={`text-3xl font-bold tracking-tight ${theme.text}`}>
+            Clicker<span className={theme.accent}>Pro</span>
           </h1>
-          <div className={`w-3 h-8 ${theme.accentBg} animate-pulse ml-2`} />
+          <p className={`${theme.muted} text-sm mt-1`}>Advanced automation and simulation utility</p>
         </div>
-        <div className="flex items-center gap-4 mt-2">
-          <div className="h-[1px] w-12 bg-white/10" />
-          <p className={`${theme.muted} text-[10px] tracking-[0.3em] uppercase`}>v2.5 // KERNEL_LEVEL_SIM</p>
-          <div className="h-[1px] w-12 bg-white/10" />
+        <div className={`px-3 py-1 rounded-full bg-white/5 border ${theme.border} text-[10px] font-bold uppercase tracking-wider ${theme.muted}`}>
+          v2.5.0 Stable
         </div>
       </div>
     </motion.div>

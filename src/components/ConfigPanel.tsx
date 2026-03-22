@@ -96,15 +96,15 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
         </div>
 
         {/* Click Type */}
-        <div className="space-y-4">
-          <label className={`text-[10px] uppercase tracking-[0.2em] ${theme.muted} font-bold`}>Trigger Type</label>
+        <div className="space-y-3">
+          <label className={`text-sm font-semibold ${theme.text}`}>Trigger Type</label>
           <div className="grid grid-cols-3 gap-2">
             {(['left', 'right', 'double'] as ClickType[]).map((type) => (
               <button
                 key={type}
                 onClick={() => setConfig({ ...config, clickType: type })}
-                className={`p-3 rounded-none border text-[10px] font-bold uppercase transition-all
-                  ${config.clickType === type ? `${theme.accentBg} text-black border-transparent` : `${theme.border} ${theme.muted} hover:border-white/20`}
+                className={`p-3 ${theme.radius || 'rounded-none'} border text-xs font-medium capitalize transition-all
+                  ${config.clickType === type ? `${theme.accentBg} text-white border-transparent shadow-sm` : `${theme.border} ${theme.muted} hover:bg-white/50`}
                 `}
               >
                 {type}
@@ -115,67 +115,70 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
       </div>
 
       {/* Advanced Randomization (Jitter) */}
-      <div className="space-y-4">
-        <label className={`text-[10px] uppercase tracking-[0.2em] ${theme.muted} font-bold`}>Advanced Jitter (X/Y Pixel Offset)</label>
+      <div className="space-y-3">
+        <label className={`text-sm font-semibold ${theme.text}`}>Advanced Jitter (X/Y Pixel Offset)</label>
         <div className="grid grid-cols-2 gap-4">
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/20">JITTER_X</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">X_OFFSET</span>
             <input 
               type="number" 
               value={config.jitterX}
               onChange={(e) => setConfig({ ...config, jitterX: parseInt(e.target.value) || 0 })}
-              className={`w-full ${theme.bg} border ${theme.border} rounded-none p-4 pl-20 ${theme.mono} focus:outline-none`}
+              className={`w-full ${theme.bg} border ${theme.border} ${theme.radius || 'rounded-none'} p-3 pl-20 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all`}
             />
           </div>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/20">JITTER_Y</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">Y_OFFSET</span>
             <input 
               type="number" 
               value={config.jitterY}
               onChange={(e) => setConfig({ ...config, jitterY: parseInt(e.target.value) || 0 })}
-              className={`w-full ${theme.bg} border ${theme.border} rounded-none p-4 pl-20 ${theme.mono} focus:outline-none`}
+              className={`w-full ${theme.bg} border ${theme.border} ${theme.radius || 'rounded-none'} p-3 pl-20 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all`}
             />
           </div>
         </div>
       </div>
 
       {/* Targeting System */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <label className={`text-[10px] uppercase tracking-[0.2em] ${theme.muted} font-bold`}>Targeting System</label>
+          <label className={`text-sm font-semibold ${theme.text}`}>Targeting System</label>
           <div className="flex gap-4">
             <button 
-              onClick={detectPosition}
-              className={`text-[10px] font-bold uppercase transition-colors ${isDetecting ? theme.accent : theme.muted} hover:text-white`}
+              onClick={(e) => {
+                e.stopPropagation();
+                detectPosition();
+              }}
+              className={`text-xs font-medium transition-colors ${isDetecting ? theme.accent : theme.muted} hover:opacity-80`}
             >
-              {isDetecting ? '[ DETECTING... ]' : '[ AUTO_DETECT ]'}
+              {isDetecting ? 'Detecting...' : 'Auto Detect'}
             </button>
             <button 
               onClick={() => setConfig({ ...config, useCoordinates: !config.useCoordinates })}
-              className={`text-[10px] font-bold uppercase transition-colors ${config.useCoordinates ? theme.accent : theme.muted}`}
+              className={`text-xs font-medium transition-colors ${config.useCoordinates ? theme.accent : theme.muted} hover:opacity-80`}
             >
-              {config.useCoordinates ? '[ CUSTOM_POS ]' : '[ MOUSE_POS ]'}
+              {config.useCoordinates ? 'Custom Position' : 'Mouse Position'}
             </button>
           </div>
         </div>
         {config.useCoordinates && (
           <div className="grid grid-cols-2 gap-4">
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/20">X_AXIS</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">X_AXIS</span>
               <input 
                 type="number" 
                 value={config.x}
                 onChange={(e) => setConfig({ ...config, x: parseInt(e.target.value) || 0 })}
-                className={`w-full ${theme.bg} border ${theme.border} rounded-none p-4 pl-16 ${theme.mono} focus:outline-none focus:border-[#00FF41]/50`}
+                className={`w-full ${theme.bg} border ${theme.border} ${theme.radius || 'rounded-none'} p-3 pl-16 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all`}
               />
             </div>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/20">Y_AXIS</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">Y_AXIS</span>
               <input 
                 type="number" 
                 value={config.y}
                 onChange={(e) => setConfig({ ...config, y: parseInt(e.target.value) || 0 })}
-                className={`w-full ${theme.bg} border ${theme.border} rounded-none p-4 pl-16 ${theme.mono} focus:outline-none focus:border-[#00FF41]/50`}
+                className={`w-full ${theme.bg} border ${theme.border} ${theme.radius || 'rounded-none'} p-3 pl-16 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all`}
               />
             </div>
           </div>
@@ -255,36 +258,56 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
       <div className="pt-6 flex flex-col md:flex-row gap-4">
         <button
           onClick={() => isRunning || isCountingDown ? stopSimulation() : startSimulation()}
-          className={`flex-1 p-6 rounded-none flex items-center justify-center gap-3 font-bold uppercase tracking-widest transition-all border
+          className={`flex-1 p-4 ${theme.radius || 'rounded-none'} flex items-center justify-center gap-3 font-semibold transition-all border
             ${isRunning || isCountingDown
-              ? 'bg-red-500/10 border-red-500/50 text-red-500 hover:bg-red-500/20' 
-              : `${theme.accentBg} bg-opacity-10 border-[#00FF41]/50 ${theme.accent} hover:bg-opacity-20`
+              ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+              : `bg-indigo-600 border-indigo-700 text-white hover:bg-indigo-700 shadow-md active:shadow-sm active:translate-y-0.5`
             }
           `}
         >
           {isCountingDown ? (
-            <span className="text-2xl animate-ping">{countdown}</span>
+            <span className="text-xl font-bold animate-pulse">{countdown}</span>
           ) : (
             <>
-              {isRunning ? <Square className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
-              {isRunning ? 'TERMINATE_PROCESS' : 'EXECUTE_SIMULATION'}
+              {isRunning ? <Square className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+              {isRunning ? 'Stop Simulation' : 'Start Simulation'}
             </>
           )}
         </button>
         
-        <div className={`flex flex-col justify-center px-8 py-4 rounded-none border ${theme.border} ${theme.mono} bg-white/5`}>
-          <div className="flex items-center justify-between gap-8">
+        <div className={`flex flex-col justify-center px-6 py-3 ${theme.radius || 'rounded-none'} border ${theme.border} ${theme.card} ${theme.glow}`}>
+          <div className="flex items-center justify-between gap-6">
             <div>
-              <span className={`text-[10px] ${theme.muted} uppercase block`}>TOTAL_CLICKS</span>
-              <span className="text-2xl font-bold">{clicksCount.toLocaleString()}</span>
+              <span className={`text-[10px] ${theme.muted} uppercase font-bold tracking-wider block`}>Total Clicks</span>
+              <span className={`text-xl font-bold ${theme.text}`}>{clicksCount.toLocaleString()}</span>
             </div>
             <div className="text-right">
-              <span className={`text-[10px] ${theme.muted} uppercase block`}>REALTIME_CPM</span>
+              <span className={`text-[10px] ${theme.muted} uppercase font-bold tracking-wider block`}>Realtime CPM</span>
               <span className={`text-xl font-bold ${theme.accent}`}>
                 {isRunning ? (config.unit === 'cpm' ? config.interval : Math.round(60000 / (config.unit === 'ms' ? config.interval : config.unit === 's' ? config.interval * 1000 : config.interval * 60000))) : 0}
               </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Performance Monitor */}
+      <div className={`p-4 border ${theme.border} ${theme.radius || 'rounded-none'} ${theme.card} grid grid-cols-2 md:grid-cols-4 gap-4 ${theme.glow}`}>
+        <div className="flex flex-col">
+          <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-wider`}>CPU Load</span>
+          <span className={`text-xs font-semibold ${theme.text}`}>{(Math.random() * 5 + 2).toFixed(1)}%</span>
+        </div>
+        <div className="flex flex-col">
+          <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-wider`}>Memory</span>
+          <span className={`text-xs font-semibold ${theme.text}`}>{(Math.random() * 20 + 40).toFixed(1)}MB</span>
+        </div>
+        <div className="flex flex-col">
+          <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-wider`}>Thread ID</span>
+          <span className={`text-xs font-semibold ${theme.text}`}>0x{Math.floor(Math.random() * 0xFFFF).toString(16).toUpperCase()}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-wider`}>Latency</span>
+          <span className={`text-xs font-semibold ${theme.text}`}>{(Math.random() * 0.5 + 0.1).toFixed(3)}ms</span>
         </div>
       </div>
     </motion.div>
