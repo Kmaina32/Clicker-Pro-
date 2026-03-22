@@ -23,21 +23,3 @@ export interface ClickerConfig {
   soundEnabled: boolean;
   rippleEnabled: boolean;
 }
-
-export interface SessionLog {
-  id: string;
-  timestamp: number;
-  clicks: number;
-  duration: number;
-  configName: string;
-}
-
-export interface ScheduledTask {
-  id: string;
-  name: string;
-  config: ClickerConfig;
-  startTime: string; // HH:mm format
-  days: string[]; // ['Mon', 'Tue', ...]
-  isActive: boolean;
-  lastRun?: number;
-}

@@ -1,25 +1,19 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Play, Square, MousePointer2 } from 'lucide-react';
+import { MousePointer2 } from 'lucide-react';
 import { ClickerConfig, ClickType, IntervalUnit } from '../types';
 
 interface ConfigPanelProps {
   config: ClickerConfig;
   setConfig: (config: ClickerConfig) => void;
-  isRunning: boolean;
-  isCountingDown: boolean;
-  countdown: number;
-  clicksCount: number;
-  startSimulation: () => void;
-  stopSimulation: () => void;
   detectPosition: () => void;
   isDetecting: boolean;
+  isSessionActive: boolean;
   theme: any;
 }
 
 export const ConfigPanel: React.FC<ConfigPanelProps> = ({
-  config, setConfig, isRunning, isCountingDown, countdown, clicksCount,
-  startSimulation, stopSimulation, detectPosition, isDetecting, theme
+  config, setConfig, detectPosition, isDetecting, isSessionActive, theme
 }) => {
   return (
     <motion.div
@@ -31,8 +25,8 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
     >
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold uppercase italic tracking-tight">Main Controller</h2>
-        <div className={`px-3 py-1 rounded-none border ${theme.border} text-[10px] ${theme.mono} ${theme.muted}`}>
-          STATUS: {isRunning ? 'ACTIVE' : isCountingDown ? 'COUNTDOWN' : 'IDLE'}
+        <div className={`px-3 py-1 rounded-none border ${theme.border} text-[10px] ${theme.mono} ${isSessionActive ? 'text-emerald-500 border-emerald-500/50 animate-pulse' : theme.muted}`}>
+          STATUS: {isSessionActive ? 'ACTIVE' : 'READY'}
         </div>
       </div>
 
@@ -186,6 +180,17 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
         {isDetecting && (
           <p className="text-[10px] text-yellow-500 animate-pulse">Move mouse to target and CLICK to lock coordinates.</p>
         )}
+        
+        {config.useCoordinates && !isDetecting && !isSessionActive && (
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={() => (window as any).startSession?.()}
+            className={`w-full mt-4 py-4 border-2 ${theme.accent === 'text-[#00FF41]' ? 'border-[#00FF41] text-[#00FF41]' : 'border-indigo-600 text-indigo-600'} ${theme.radius || 'rounded-none'} text-sm font-black uppercase tracking-[0.3em] hover:bg-white/10 transition-all shadow-[0_0_20px_rgba(0,0,0,0.2)]`}
+          >
+            Start Session
+          </motion.button>
+        )}
       </div>
 
       {/* Toggles */}
@@ -254,62 +259,6 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
         </div>
       </div>
 
-      {/* Control Buttons */}
-      <div className="pt-6 flex flex-col md:flex-row gap-4">
-        <button
-          onClick={() => isRunning || isCountingDown ? stopSimulation() : startSimulation()}
-          className={`flex-1 p-4 ${theme.radius || 'rounded-none'} flex items-center justify-center gap-3 font-semibold transition-all border
-            ${isRunning || isCountingDown
-              ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
-              : `bg-indigo-600 border-indigo-700 text-white hover:bg-indigo-700 shadow-md active:shadow-sm active:translate-y-0.5`
-            }
-          `}
-        >
-          {isCountingDown ? (
-            <span className="text-xl font-bold animate-pulse">{countdown}</span>
-          ) : (
-            <>
-              {isRunning ? <Square className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-              {isRunning ? 'Stop Simulation' : 'Start Simulation'}
-            </>
-          )}
-        </button>
-        
-        <div className={`flex flex-col justify-center px-6 py-3 ${theme.radius || 'rounded-none'} border ${theme.border} ${theme.card} ${theme.glow}`}>
-          <div className="flex items-center justify-between gap-6">
-            <div>
-              <span className={`text-[10px] ${theme.muted} uppercase font-bold tracking-wider block`}>Total Clicks</span>
-              <span className={`text-xl font-bold ${theme.text}`}>{clicksCount.toLocaleString()}</span>
-            </div>
-            <div className="text-right">
-              <span className={`text-[10px] ${theme.muted} uppercase font-bold tracking-wider block`}>Realtime CPM</span>
-              <span className={`text-xl font-bold ${theme.accent}`}>
-                {isRunning ? (config.unit === 'cpm' ? config.interval : Math.round(60000 / (config.unit === 'ms' ? config.interval : config.unit === 's' ? config.interval * 1000 : config.interval * 60000))) : 0}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Performance Monitor */}
-      <div className={`p-4 border ${theme.border} ${theme.radius || 'rounded-none'} ${theme.card} grid grid-cols-2 md:grid-cols-4 gap-4 ${theme.glow}`}>
-        <div className="flex flex-col">
-          <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-wider`}>CPU Load</span>
-          <span className={`text-xs font-semibold ${theme.text}`}>{(Math.random() * 5 + 2).toFixed(1)}%</span>
-        </div>
-        <div className="flex flex-col">
-          <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-wider`}>Memory</span>
-          <span className={`text-xs font-semibold ${theme.text}`}>{(Math.random() * 20 + 40).toFixed(1)}MB</span>
-        </div>
-        <div className="flex flex-col">
-          <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-wider`}>Thread ID</span>
-          <span className={`text-xs font-semibold ${theme.text}`}>0x{Math.floor(Math.random() * 0xFFFF).toString(16).toUpperCase()}</span>
-        </div>
-        <div className="flex flex-col">
-          <span className={`text-[9px] ${theme.muted} uppercase font-bold tracking-wider`}>Latency</span>
-          <span className={`text-xs font-semibold ${theme.text}`}>{(Math.random() * 0.5 + 0.1).toFixed(3)}ms</span>
-        </div>
-      </div>
     </motion.div>
   );
 };

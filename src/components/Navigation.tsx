@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Settings2, Code2, Zap, ChevronRight, History, Palette, Calendar, HelpCircle } from 'lucide-react';
+import { Settings2, Code2, ChevronRight, Palette, HelpCircle } from 'lucide-react';
 
 interface NavigationProps {
   activeTab: string;
@@ -11,10 +11,7 @@ interface NavigationProps {
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab, theme }) => {
   const tabs = [
     { id: 'config', label: 'Configuration', icon: Settings2 },
-    { id: 'schedule', label: 'Schedule', icon: Calendar },
     { id: 'scripts', label: 'Export Scripts', icon: Code2 },
-    { id: 'test', label: 'CPS Tester', icon: Zap },
-    { id: 'history', label: 'Session Logs', icon: History },
     { id: 'theme', label: 'Skins', icon: Palette },
     { id: 'help', label: 'SOP / Help', icon: HelpCircle },
   ];
@@ -40,21 +37,6 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
           )}
         </button>
       ))}
-
-      {/* Hotkey Info */}
-      <div className={`mt-auto p-4 ${theme.radius || 'rounded-none'} border ${theme.border} ${theme.card} hidden lg:block ${theme.glow}`}>
-        <span className={`text-xs font-semibold ${theme.muted} uppercase tracking-wider block mb-3`}>Hotkeys</span>
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs">
-            <span className={theme.muted}>Start/Stop</span>
-            <kbd className={`px-1.5 py-0.5 rounded border ${theme.border} bg-slate-50 font-sans text-[10px]`}>Ctrl+Alt+P</kbd>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className={theme.muted}>Reset</span>
-            <kbd className={`px-1.5 py-0.5 rounded border ${theme.border} bg-slate-50 font-sans text-[10px]`}>Ctrl+Alt+R</kbd>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
