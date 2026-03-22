@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { MousePointer2 } from 'lucide-react';
+import { MousePointer2, Keyboard } from 'lucide-react';
 import { ClickerConfig, ClickType, IntervalUnit } from '../types';
 
 interface ConfigPanelProps {
@@ -15,6 +15,42 @@ interface ConfigPanelProps {
 export const ConfigPanel: React.FC<ConfigPanelProps> = ({
   config, setConfig, detectPosition, isDetecting, isSessionActive, theme
 }) => {
+  const [recordingKey, setRecordingKey] = useState<'start' | 'stop' | 'reset' | null>(null);
+
+  useEffect(() => {
+    if (!recordingKey) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      let key = e.key.toUpperCase();
+      if (key === 'CONTROL') return;
+      if (key === 'ALT') return;
+      if (key === 'SHIFT') return;
+      if (key === 'META') return;
+
+      const modifiers = [];
+      if (e.ctrlKey) modifiers.push('CTRL');
+      if (e.altKey) modifiers.push('ALT');
+      if (e.shiftKey) modifiers.push('SHIFT');
+      
+      const finalKey = [...modifiers, key].join('+');
+
+      setConfig({
+        ...config,
+        hotkeys: {
+          ...config.hotkeys,
+          [recordingKey]: finalKey
+        }
+      });
+      setRecordingKey(null);
+    };
+
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [recordingKey, config, setConfig]);
+
   return (
     <motion.div
       key="config"
@@ -257,6 +293,33 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Hotkey Manager */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Keyboard className={`w-4 h-4 ${theme.accent}`} />
+          <label className={`text-sm font-semibold ${theme.text}`}>Hotkey Manager</label>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(['start', 'stop', 'reset'] as const).map((action) => (
+            <div key={action} className="space-y-2">
+              <span className={`text-[10px] font-bold ${theme.muted} uppercase tracking-widest`}>{action}</span>
+              <button
+                onClick={() => setRecordingKey(action)}
+                className={`w-full p-3 border ${theme.border} ${theme.radius || 'rounded-none'} ${theme.bg} text-xs font-mono transition-all hover:border-indigo-500/50
+                  ${recordingKey === action ? 'ring-2 ring-indigo-500/30 border-indigo-500 animate-pulse' : ''}
+                `}
+              >
+                {recordingKey === action ? 'Press Key...' : config.hotkeys[action]}
+              </button>
+            </div>
+          ))}
+        </div>
+        <p className={`text-[10px] ${theme.muted} italic`}>
+          Click a button to record a new hotkey. Supports modifiers (Ctrl, Alt, Shift).
+        </p>
       </div>
 
     </motion.div>

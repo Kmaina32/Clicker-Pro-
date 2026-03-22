@@ -2,13 +2,16 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Settings2, Code2, ChevronRight, Palette, HelpCircle } from 'lucide-react';
 
+import { ClickerConfig } from '../types';
+
 interface NavigationProps {
   activeTab: string;
   setActiveTab: (tab: any) => void;
+  config: ClickerConfig;
   theme: any;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab, theme }) => {
+export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab, config, theme }) => {
   const tabs = [
     { id: 'config', label: 'Configuration', icon: Settings2 },
     { id: 'scripts', label: 'Export Scripts', icon: Code2 },
@@ -37,6 +40,25 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
           )}
         </button>
       ))}
+
+      {/* Hotkey Info */}
+      <div className={`mt-auto p-4 ${theme.radius || 'rounded-none'} border ${theme.border} ${theme.card} hidden lg:block ${theme.glow}`}>
+        <span className={`text-xs font-semibold ${theme.muted} uppercase tracking-wider block mb-3`}>Hotkeys</span>
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <span className={theme.muted}>Start</span>
+            <kbd className={`px-1.5 py-0.5 rounded border ${theme.border} bg-slate-50 font-sans text-[10px]`}>{config.hotkeys.start}</kbd>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className={theme.muted}>Stop</span>
+            <kbd className={`px-1.5 py-0.5 rounded border ${theme.border} bg-slate-50 font-sans text-[10px]`}>{config.hotkeys.stop}</kbd>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className={theme.muted}>Reset</span>
+            <kbd className={`px-1.5 py-0.5 rounded border ${theme.border} bg-slate-50 font-sans text-[10px]`}>{config.hotkeys.reset}</kbd>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

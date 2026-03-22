@@ -1,6 +1,12 @@
 export type IntervalUnit = 'ms' | 's' | 'm' | 'cpm';
 export type ClickType = 'left' | 'right' | 'double';
 
+export interface HotkeyConfig {
+  start: string;
+  stop: string;
+  reset: string;
+}
+
 export interface ClickerConfig {
   id?: string;
   name?: string;
@@ -22,4 +28,5 @@ export interface ClickerConfig {
   jitterY: number;
   soundEnabled: boolean;
   rippleEnabled: boolean;
+  hotkeys: HotkeyConfig;
 }

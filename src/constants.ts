@@ -72,4 +72,9 @@ export const DEFAULT_CONFIG = {
   jitterY: 0,
   soundEnabled: true,
   rippleEnabled: true,
+  hotkeys: {
+    start: 'F6',
+    stop: 'F7',
+    reset: 'F8',
+  },
 };
