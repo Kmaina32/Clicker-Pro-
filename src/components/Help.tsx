@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { BookOpen, ShieldCheck, Zap, Terminal, MousePointer2, Calendar } from 'lucide-react';
+import { BookOpen, ShieldCheck, Terminal, MousePointer2 } from 'lucide-react';
 
 interface HelpProps {
   theme: any;
@@ -16,32 +16,21 @@ export const Help: React.FC<HelpProps> = ({ theme }) => {
         "Define Interval and Unit (ms, s, m, or CPM).",
         "Set Repeat Count or Duration limit if necessary.",
         "Enable 'Use Coordinates' and use 'Auto Detect' to lock target position.",
-        "Adjust Jitter (X/Y) to simulate human-like variance."
+        "Adjust Jitter (X/Y) to define interaction variance."
       ]
     },
     {
-      title: "2. Automation Execution",
-      icon: Zap,
+      title: "2. Profile Management",
+      icon: BookOpen,
       steps: [
-        "Use 'Ctrl+Alt+P' to start or stop the simulation globally.",
-        "Monitor the 'System Terminal' for real-time kernel logs and status updates.",
-        "Use the 'Mini Overlay' (Ctrl+Alt+M) for quick access while in other windows.",
-        "Check 'Session Logs' to verify total clicks and uptime after completion."
+        "Save your configurations as named Profiles for quick access.",
+        "Use the Profile Manager to switch between different automation patterns.",
+        "Export your profiles as JSON for backup or sharing.",
+        "Import existing profile sets to quickly populate your workspace."
       ]
     },
     {
-      title: "3. Task Scheduling (SOP)",
-      icon: Calendar,
-      steps: [
-        "Navigate to the 'Schedule' tab.",
-        "Define a new task with a specific start time and active days.",
-        "Assign a pre-configured 'Profile' to the task.",
-        "Ensure the application remains open to trigger background tasks.",
-        "Verify 'Last Run' timestamps to ensure successful automation."
-      ]
-    },
-    {
-      title: "4. Script Exporting",
+      title: "3. Script Exporting",
       icon: Terminal,
       steps: [
         "Configure your desired clicker settings in the 'Configuration' tab.",
@@ -52,13 +41,13 @@ export const Help: React.FC<HelpProps> = ({ theme }) => {
       ]
     },
     {
-      title: "5. Security & Safety",
+      title: "4. Security & Safety",
       icon: ShieldCheck,
       steps: [
         "Use 'Randomize Interval' to avoid detection in sensitive environments.",
         "Keep jitter settings above 5px for more natural movement simulation.",
-        "All profiles and logs are stored securely on the local backend (data.json).",
-        "Use the 'Emergency Stop' hotkey (Ctrl+Alt+P) if automation behaves unexpectedly."
+        "All profiles are stored securely on the local backend (data.json).",
+        "Verify your target coordinates before running exported scripts."
       ]
     }
   ];
