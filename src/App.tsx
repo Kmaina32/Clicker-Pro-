@@ -83,12 +83,33 @@ export default function App() {
   // --- Hotkeys ---
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // No hotkeys for simulation anymore
+      // Don't trigger hotkeys if user is typing in an input
+      if (document.activeElement?.tagName === 'INPUT') return;
+
+      const modifiers = [];
+      if (e.ctrlKey) modifiers.push('CTRL');
+      if (e.altKey) modifiers.push('ALT');
+      if (e.shiftKey) modifiers.push('SHIFT');
+      
+      const key = e.key.toUpperCase();
+      const pressed = [...modifiers, key].join('+');
+
+      if (pressed === config.hotkeys.start) {
+        e.preventDefault();
+        startSession();
+      } else if (pressed === config.hotkeys.stop) {
+        e.preventDefault();
+        stopSession();
+      } else if (pressed === config.hotkeys.reset) {
+        e.preventDefault();
+        stopSession();
+        // Reset logic if needed, for now just stop
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [config.hotkeys, startSession, stopSession]);
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} p-4 md:p-8 flex flex-col items-center justify-center selection:bg-indigo-500/30 ${theme.font || 'font-sans'} relative overflow-hidden`}>
@@ -147,6 +168,7 @@ export default function App() {
         <Navigation 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
+          config={config}
           theme={theme} 
         />
 
